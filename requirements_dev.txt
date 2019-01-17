@@ -1,0 +1,5 @@
+pytest
+coverage
+pytest-cov
+lxml
+git+https://gitlab.csc.fi/dpres/xml-helpers.git@develop#egg=xml_helpers
