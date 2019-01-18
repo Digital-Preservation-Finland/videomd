@@ -3,10 +3,9 @@ xml.etree.ElementTree data structures.
 
 References:
 
-    * VideoMD https://www.loc.gov/standards/vmdvmd/
-    * Schema documentation: https://www.loc.gov/standards/amdvmd/htmldoc/videoMD.html
-    * ElementTree
-    https://docs.python.org/2.6/library/xml.etree.elementtree.html
+    * VideoMD: https://www.loc.gov/standards/vmdvmd/
+    * Schema documentation:
+      https://www.loc.gov/standards/amdvmd/htmldoc/videoMD.html
 
 """
 
@@ -16,7 +15,7 @@ from xml_helpers.utils import xsi_ns, XSI_NS
 
 
 VIDEOMD_NS = 'http://www.loc.gov/videoMD/'
-NAMESPACE = {"vmd" : VIDEOMD_NS, "xsi" : XSI_NS}
+NAMESPACE = {"vmd": VIDEOMD_NS, "xsi": XSI_NS}
 
 MEDIA_PARAMS = [
     "tracking", "duration", "language",
@@ -82,9 +81,9 @@ VARIABLE_RATE_PARAMS = [
 
 
 def videomd_ns(tag, prefix=""):
-    """Prefix ElementTree tags with videoMD namespace.
+    """Prefix ElementTree tags with VideoMD namespace.
 
-    object -> {http://www.loc.gov/videoMD}object
+    object -> {http://www.loc.gov/VideoMD}object
 
     :tag: Tag name as string
     :returns: Prefixed tag
@@ -97,7 +96,7 @@ def videomd_ns(tag, prefix=""):
 
 
 def _element(tag, prefix=""):
-    """Return _ElementInterface with videoMD namespace.
+    """Return _ElementInterface with VideoMD namespace.
 
     Prefix parameter is useful for adding prefixed to lower case tags. It just
     uppercases first letter of tag and appends it to prefix::
@@ -122,24 +121,34 @@ def _subelement(parent, tag, prefix=""):
     :tag: Element tagname
     :prefix: Prefix for the tag
     :returns: Created subelement
-
     """
     return ET.SubElement(parent, videomd_ns(tag, prefix))
 
 
-def _simple_elements(parent, elements, element_name):
-    if elements is not None:
+def _simple_elements(parent, element_values, element_name):
+    """Add new simple elements to a parent element. If a list of values are
+    given, then as many elements are created than there are values in the
+    list.
+    :parent: Parent element
+    :element_values: String or list of strings of the simple element values
+    :element_name: Element name.
+    """
+    if element_values is not None:
 
-        if isinstance(elements, list):
-            for element in elements:
+        if isinstance(element_values, list):
+            for value in element_values:
                 vmd_element = _subelement(parent, element_name)
-                vmd_element.text = element
+                vmd_element.text = value
         else:
             vmd_element = _subelement(parent, element_name)
-            vmd_element.text = elements
+            vmd_element.text = element_values
 
 
 def _add_elements(parent, elements):
+    """Add given element to a parent element.
+    :parent element: Parent element
+    :elements: Element to be added
+    """
     if elements is not None:
 
         if isinstance(elements, list):
@@ -150,7 +159,10 @@ def _add_elements(parent, elements):
 
 
 def _location(location, loc_type):
-    """Returns videoMD location element
+    """Creates VideoMD location element
+    :location: Location value
+    :loc_type: Type of the location element
+    :returns: VideoMD location element
     """
     loc_elem = _element('location')
     loc_elem.text = location
@@ -166,8 +178,13 @@ def _location(location, loc_type):
 
     return loc_elem
 
+
 def _variable_rate(key, rate, attr_dict):
-    """Returns videoMD frameRate or sampleRate with attributes
+    """Creates VideoMD frameRate or sampleRate with attributes
+    :key: Element name of the variable rate element
+    :rate: Rate given as value to the element
+    :attr_dict: Attribute values as dict to the variable rate element
+    :returns: videoMd variable rate element
     """
     elem = _element(key)
     elem.text = rate
@@ -184,7 +201,7 @@ def _variable_rate(key, rate, attr_dict):
 
 def get_params(param_list):
     """Initialize all parameters as None
-
+    :param_list: List of parameter names
     :returns: Dict of parameters
     """
 
@@ -198,6 +215,8 @@ def get_params(param_list):
 def _check_params(param_dict, param_list):
     """Check that all the provided parameters in param_dict
     are found in the param_list.
+    :param_dict: Dict of parameters
+    :param_list: List of parameter names
     """
 
     for key in param_dict:
@@ -207,23 +226,19 @@ def _check_params(param_dict, param_list):
 
 def create_videomd(analog_digital_flag='FileDigital', file_data=None,
                    physical_data=None, video_info=None, calibration_info=None):
-    """Create videoMD Data Dictionary root element.
-
-    :Schema documentation: https://www.loc.gov/standards/vmdvmd/audiovideoMDschemas.html
-    :child_elements: Any elements appended to the videoMD dictionary
-
-    Returns the following ElementTree structure::
-
-
-        <vmd:VIDEOMD
-            xmlns:vmd="http://www.loc.gov/videoMD/"
-
+    """Create VideoMD Data Dictionary root element.
+    :analog_digital_flag: ANALOGDIGITALFLAG attribute value
+    :file_data: VideoMD fileData element
+    :physical_data: VideoMD physicalData element
+    :video_info: VideoMD videoInfo element
+    :calibration_info: VideoMD calibrationInfo element
+    :returns: VideoMD metadata
     """
     videomd_elem = _element('VIDEOMD')
     videomd_elem.set(
         xsi_ns('schemaLocation'),
-        'http://www.loc.gov/videoMD/ ' +
-        'https://www.loc.gov/standards/vmdvmd/videoMD.xsd'
+        'http://www.loc.gov/VideoMD/ ' +
+        'https://www.loc.gov/standards/vmdvmd/VideoMD.xsd'
     )
     videomd_elem.set('ANALOGDIGITALFLAG', analog_digital_flag)
 
@@ -241,7 +256,13 @@ def create_videomd(analog_digital_flag='FileDigital', file_data=None,
 
 def vmd_file_data(params, drate_attr=None, frate_attr=None,
                   srate_attr=None, location_type=None):
-    """Returns VideoMD fileData element
+    """Creates VideoMD fileData element
+    :params: Dict of parameters listed in FILE_DATA_PARAMS
+    :drate_attr: Dict of attributes for dataRate element
+    :frate_attr: Dict of attributes for frameRate element
+    :srate_attr: Dict of attributes for sampleRate element
+    :location_type: Type of the location element
+    :returns: VideoMD fileData element
     """
     _check_params(params, FILE_DATA_PARAMS)
 
@@ -270,7 +291,9 @@ def vmd_file_data(params, drate_attr=None, frate_attr=None,
 
 
 def vmd_format(params):
-    """Returns VideoMD format element
+    """Creates VideoMD format element
+    :params: Dict of parameters listed in FORMAT_PARAMS
+    :returns: VideoMD format element
     """
     _check_params(params, FORMAT_PARAMS)
 
@@ -284,7 +307,9 @@ def vmd_format(params):
 
 
 def vmd_codec(params):
-    """Returns VideoMD codec element
+    """Creates VideoMD codec element
+    :params: Dict of parameters listed in CODEC_PARAMS
+    :returns: VideoMD codec element
     """
     _check_params(params, CODEC_PARAMS)
 
@@ -299,44 +324,44 @@ def vmd_codec(params):
 
 def vmd_timecode(record_method=None, timecode_type=None,
                  initial_value=None):
-    """Returns VideoMD timecode element
+    """Creates VideoMD timecode element
+    :record_method: Value of timecodeRecordMethod element
+    :timecode_type: Value of timecodeType element
+    :initial_value: Value of timecodeInitialValue element
+    :returns: VideoMD timecode element
     """
     timecode_elem = _element('timecode')
 
-    if record_method:
-        record_method_elem = _subelement(timecode_elem, 'timecodeRecordMethod')
-        record_method_elem.text = record_method
-
-    if timecode_type:
-        timecode_type_elem = _subelement(timecode_elem, 'timecodeType')
-        timecode_type_elem.text = timecode_type
-
-    if initial_value:
-        initial_value_elem = _subelement(timecode_elem, 'timecodeInitialValue')
-        initial_value_elem.text = initial_value
+    _simple_elements(timecode_elem, record_method, 'timecodeRecordMethod')
+    _simple_elements(timecode_elem, timecode_type, 'timecodeType')
+    _simple_elements(timecode_elem, initial_value, 'timecodeInitialValue')
 
     return timecode_elem
 
 
 def vmd_message_digest(datetime, algorithm, message_digest):
-    """Returns VideoMD messageDigest element
+    """Creates VideoMD messageDigest element
+    :datetime: Value of messageDigestDatetime element
+    :algorithm: Value of messageDigestAlgorithm element
+    :message_digest: Value of messageDigest element
+    :returns: VideoMD messageDigest element
     """
     message_digest_elem = _element('messageDigest')
 
-    datetime_elem = _subelement(message_digest_elem, 'messageDigestDatetime')
-    datetime_elem.text = datetime
-
-    algorithm_elem = _subelement(message_digest_elem, 'messageDigestAlgorithm')
-    algorithm_elem.text = algorithm
-
-    message_digest_value_elem = _subelement(message_digest_elem, 'messageDigest')
-    message_digest_value_elem.text = message_digest
+    _simple_elements(message_digest_elem, datetime, 'messageDigestDatetime')
+    _simple_elements(message_digest_elem, algorithm, 'messageDigestAlgorithm')
+    _simple_elements(message_digest_elem, message_digest, 'messageDigest')
 
     return message_digest_elem
 
 
 def vmd_compression(app=None, app_version=None, name=None, quality=None):
-    """Returns VideoMD compression element
+    """Creates VideoMD compression element
+    :app: Value of codecCreatorApp element
+    :app_version: Value of codecCreatorAppVersion element
+    :name: Value of codecName element
+    :quality: Value of codecQuality element
+    :returns: VideoMD compression element
     """
     compression_elem = _element('compression')
 
@@ -350,7 +375,14 @@ def vmd_compression(app=None, app_version=None, name=None, quality=None):
 
 def vmd_track(params, track_num=None, track_type=None,
               drate_attr=None, frate_attr=None, srate_attr=None):
-    """Returns VideoMD track element
+    """Creates VideoMD track element
+    :params: Dict of parameters listed in TRACK_PARAMS
+    :track_num: Value of the num attribute in track element
+    :track_type: Value of the type attribute in track element
+    :drate_attr: Dict of attributes for dataRate element
+    :frate_attr: Dict of attributes for frameRate element
+    :srate_attr: Dict of attributes for sampleRate element
+    :returns: VideoMD track element
     """
     _check_params(params, TRACK_PARAMS)
 
@@ -373,7 +405,8 @@ def vmd_track(params, track_num=None, track_type=None,
                 _add_elements(track_elem, params[key])
             elif key in ["dataRate", "frameRate", "sampleRate"]:
                 _add_elements(
-                    track_elem, _variable_rate(key, params[key], attr_dict[key]))
+                    track_elem,
+                    _variable_rate(key, params[key], attr_dict[key]))
             else:
                 _simple_elements(track_elem, params[key], key)
 
@@ -381,7 +414,9 @@ def vmd_track(params, track_num=None, track_type=None,
 
 
 def vmd_physical_data(params):
-    """Returns VideoMD physicalData element
+    """Creates VideoMD physicalData element
+    :params: Dict of parameters listed in PHYSICAL_DATA_PARAMS
+    :returns: VideoMD physicalData element
     """
     _check_params(params, PHYSICAL_DATA_PARAMS)
 
@@ -399,7 +434,12 @@ def vmd_physical_data(params):
 
 
 def vmd_dtv(aspect_ratio=None, note=None, resolution=None, scan=None):
-    """Returns VideoMD dtv element
+    """Creates VideoMD dtv element
+    :aspect_ratio: Value of dtvAspectRatio element
+    :note: Value of dtvNote element
+    :resolution: Value of dtvResolution element
+    :scan: Value of dtvScan element
+    :returns: VideoMD dtv element
     """
     dtv_elem = _element('dtv')
 
@@ -412,7 +452,9 @@ def vmd_dtv(aspect_ratio=None, note=None, resolution=None, scan=None):
 
 
 def vmd_dimensions(params):
-    """Returns VideoMD dimensions element
+    """Creates VideoMD dimensions element
+    :params: Dict of parameters listed in DIMENSIONS_PARAMS
+    :returns: VideoMD dimensions element
     """
     _check_params(params, DIMENSIONS_PARAMS)
 
@@ -426,7 +468,9 @@ def vmd_dimensions(params):
 
 
 def vmd_material(params):
-    """Returns VideoMD material element
+    """Creates VideoMD material element
+    :params: Dict of parameters listed in MATERIAL_PARAMS
+    :returns: VideoMD material element
     """
     _check_params(params, MATERIAL_PARAMS)
 
@@ -440,7 +484,10 @@ def vmd_material(params):
 
 
 def vmd_tracking(tracking_type=None, tracking_value=None):
-    """Returns VideoMD tracking element
+    """Creates VideoMD tracking element
+    :tracking_type: Value of trackingType element
+    :tracking_value: Value of trackingValue element
+    :returns: VideoMD tracking element
     """
     tracking_elem = _element('tracking')
 
@@ -452,7 +499,14 @@ def vmd_tracking(tracking_type=None, tracking_value=None):
 
 def vmd_frame(pixels_horizontal=None, pixels_vertical=None,
               frame_rate=None, par=None, dar=None, rotation=None):
-    """Returns videoMD frame element
+    """Creates VideoMD frame element
+    :pixels_horizontal: Value of pixelsHorizontal element
+    :pixels_vertical: Value of pixelsVertical element
+    :frame_rate: Value of frameRate element
+    :par: Value of PAR element
+    :dar: Value of DAR element
+    :rotation: Value of rotation element
+    :returns: VideoMD frame element
     """
     frame_elem = _element('frame')
 
@@ -469,15 +523,24 @@ def vmd_frame(pixels_horizontal=None, pixels_vertical=None,
 def vmd_video_info(
         aspect_ratio=None, closed_captioning_note=None,
         closed_captioning_type=None, dimensions=None,
-        duration=None, frame=None, note=None
-):
-    """Returns VideoMD videoInfo element
+        duration=None, frame=None, note=None):
+    """Creates VideoMD videoInfo element
+    :aspect_ratio: Value of aspectRatio element
+    :closed_captioning_note: Value of closedCaptioningNote element
+    :closed_captioning_type: Value of closedCaptioningType element
+    :dimensions: Dimensions element
+    :duration: Value of duration element
+    :frame: Frame element
+    :note: Value of note element
+    :returns: VideoMD videoInfo element
     """
     video_info_elem = _element('videoInfo')
 
     _simple_elements(video_info_elem, aspect_ratio, 'aspectRatio')
-    _simple_elements(video_info_elem, closed_captioning_note, 'closedCaptioningNote')
-    _simple_elements(video_info_elem, closed_captioning_type, 'closedCaptioningType')
+    _simple_elements(video_info_elem, closed_captioning_note,
+                     'closedCaptioningNote')
+    _simple_elements(video_info_elem, closed_captioning_type,
+                     'closedCaptioningType')
     _add_elements(video_info_elem, dimensions)
     _simple_elements(video_info_elem, duration, 'duration')
     _add_elements(video_info_elem, frame)
@@ -487,15 +550,17 @@ def vmd_video_info(
 
 
 def vmd_calibration_info(
-        image_data=None, target_id=None, target_type=None
-):
-    """Returns VideoMD calibrationInfo element
+        image_data=None, target_id=None, target_type=None):
+    """Creates VideoMD calibrationInfo element
+    :image_data: Value of imageData element
+    :target_id: Value of targetId element
+    :target_type: Value of targetType element
+    :returns: VideoMD calibrationInfo element
     """
-
     calibration_info_elem = _element('calibrationInfo')
 
     _simple_elements(calibration_info_elem, image_data, 'imageData')
     _simple_elements(calibration_info_elem, target_id, 'targetId')
-    _simple_elements(calibration_info_elem, target_type, 'target_type')
+    _simple_elements(calibration_info_elem, target_type, 'targetType')
 
     return calibration_info_elem

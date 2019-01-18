@@ -26,10 +26,10 @@ def test_videomd():
         quality='lossless'
     )
     frame = vmd.vmd_frame(
-        pixels_horizontal = '1920',
-        pixels_vertical = '1080',
-        par = '1.0',
-        dar = '16/9'
+        pixels_horizontal='1920',
+        pixels_vertical='1080',
+        par='1.0',
+        dar='16/9'
     )
 
     params = vmd.get_params(vmd.FILE_DATA_PARAMS)
@@ -65,7 +65,8 @@ def test_videomd():
     path = "/vmd:VIDEOMD/vmd:fileData/vmd:compression/vmd:codecCreatorApp"
     assert videomd.xpath(path, namespaces=NAMESPACES)[0].text == '(:unap)'
 
-    path = "/vmd:VIDEOMD/vmd:fileData/vmd:compression/vmd:codecCreatorAppVersion"
+    path = "/vmd:VIDEOMD/vmd:fileData/vmd:compression/" \
+           "vmd:codecCreatorAppVersion"
     assert videomd.xpath(path, namespaces=NAMESPACES)[0].text == '(:unap)'
 
     path = "/vmd:VIDEOMD/vmd:fileData/vmd:compression/vmd:codecName"
@@ -122,7 +123,7 @@ def test_videomd_param_fail():
     parameters is not recognized.
     """
 
-    params = {"typo" : None}
+    params = {"typo": None}
 
     with pytest.raises(ValueError):
         vmd.vmd_file_data(params)
@@ -142,18 +143,13 @@ def test_videomd_param_fail():
     with pytest.raises(ValueError):
         vmd.vmd_material(params)
 
-@pytest.mark.parametrize("container, rate", [
-    ('fileData', 'dataRate'),
-    ('fileData', 'frameRate'),
-    ('fileData', 'sampleRate'),
-    ('track', 'dataRate'),
-    ('track', 'frameRate'),
-    ('track', 'sampleRate')
-])
-def test_variable_rate(container, rate):
+
+@pytest.mark.parametrize("rate", [
+    'dataRate', 'frameRate', 'sampleRate'])
+def test_variable_rate_file_data(rate):
     """Test variable rate attribute arguments in vmd_file_data()
     """
-    attr = {"maximum" : "10", "minimum": "6", "unit": "Mbps"}
+    attr = {"maximum": "10", "minimum": "6", "unit": "Mbps"}
 
     if rate == "dataRate":
         root = vmd.vmd_file_data({rate: "8"}, drate_attr=attr)
@@ -162,13 +158,37 @@ def test_variable_rate(container, rate):
     else:
         root = vmd.vmd_file_data({rate: "8"}, srate_attr=attr)
 
-    path = "/vmd:fileData/vmd:"+ rate +"/@maximum"
+    path = "/vmd:fileData/vmd:" + rate + "/@maximum"
     assert root.xpath(path, namespaces=NAMESPACES)[0] == '10'
 
     path = "/vmd:fileData/vmd:" + rate + "/@minimum"
     assert root.xpath(path, namespaces=NAMESPACES)[0] == '6'
 
     path = "/vmd:fileData/vmd:" + rate + "/@unit"
+    assert root.xpath(path, namespaces=NAMESPACES)[0] == 'Mbps'
+
+
+@pytest.mark.parametrize("rate", [
+    'dataRate', 'frameRate', 'sampleRate'])
+def test_variable_rate_track(rate):
+    """Test variable rate attribute arguments in vmd_track()
+    """
+    attr = {"maximum": "10", "minimum": "6", "unit": "Mbps"}
+
+    if rate == "dataRate":
+        root = vmd.vmd_track({rate: "8"}, drate_attr=attr)
+    elif rate == "frameRate":
+        root = vmd.vmd_track({rate: "8"}, frate_attr=attr)
+    else:
+        root = vmd.vmd_track({rate: "8"}, srate_attr=attr)
+
+    path = "/vmd:track/vmd:" + rate + "/@maximum"
+    assert root.xpath(path, namespaces=NAMESPACES)[0] == '10'
+
+    path = "/vmd:track/vmd:" + rate + "/@minimum"
+    assert root.xpath(path, namespaces=NAMESPACES)[0] == '6'
+
+    path = "/vmd:track/vmd:" + rate + "/@unit"
     assert root.xpath(path, namespaces=NAMESPACES)[0] == 'Mbps'
 
 
@@ -189,9 +209,12 @@ def test_timecode():
     """
     root = vmd.vmd_timecode("foo", "bar", "zzz")
 
-    tc_method = _get_elems(root, "/vmd:timecode/vmd:timecodeRecordMethod")[0].text
-    tc_type = _get_elems(root, "/vmd:timecode/vmd:timecodeType")[0].text
-    tc_value = _get_elems(root, "/vmd:timecode/vmd:timecodeInitialValue")[0].text
+    tc_method = _get_elems(
+        root, "/vmd:timecode/vmd:timecodeRecordMethod")[0].text
+    tc_type = _get_elems(
+        root, "/vmd:timecode/vmd:timecodeType")[0].text
+    tc_value = _get_elems(
+        root, "/vmd:timecode/vmd:timecodeInitialValue")[0].text
 
     assert tc_method == "foo"
     assert tc_type == "bar"
@@ -202,10 +225,10 @@ def test_track():
     """Test that vmd_track() produces correct XML element
     """
     frame = vmd.vmd_frame(
-        pixels_horizontal = '1920',
-        pixels_vertical = '1080',
-        par = '1.0',
-        dar = '16/9'
+        pixels_horizontal='1920',
+        pixels_vertical='1080',
+        par='1.0',
+        dar='16/9'
     )
 
     params = vmd.get_params(vmd.TRACK_PARAMS)
@@ -302,7 +325,8 @@ def test_format():
     assert format_elem.xpath(path, namespaces=NAMESPACES)[0].text == 'TIFF'
 
     path = "/vmd:format/vmd:mimetype"
-    assert format_elem.xpath(path, namespaces=NAMESPACES)[0].text == 'image/tiff'
+    assert format_elem.xpath(
+        path, namespaces=NAMESPACES)[0].text == 'image/tiff'
 
     path = "/vmd:format/vmd:version"
     assert format_elem.xpath(path, namespaces=NAMESPACES)[0].text == '6.0'
@@ -381,7 +405,7 @@ def test_physical_data():
 def test_dimensions():
     """Test that vmd_dimensions() produces correct XML element
     """
-    params = {"DEPTH" : "DEPTH", "DIAMETER" : "DIAMETER"}
+    params = {"DEPTH": "DEPTH", "DIAMETER": "DIAMETER"}
 
     root = vmd.vmd_dimensions(params)
 
