@@ -11,7 +11,12 @@ def main():
     setup(
         name='videomd',
         packages=find_packages(exclude=['tests', 'tests.*']),
-        version=get_version()
+        version=get_version(),
+        install_requires=[
+            'lxml',
+            'xml-helpers@git+https://gitlab.csc.fi/dpres/xml-helpers.git'
+            '@develop'
+        ]
     )
 
 
