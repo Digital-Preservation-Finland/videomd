@@ -6,6 +6,7 @@ import lxml.etree as ET
 from copy import deepcopy
 import videomd as vmd
 
+
 NAMESPACES = {'vmd': vmd.VIDEOMD_NS}
 SCHEMA = ET.XMLSchema(ET.parse("tests/schemas/videoMD.xsd"))
 
