@@ -1,1 +1,1 @@
-from videomd import *
+from .videomd import *

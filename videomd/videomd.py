@@ -8,8 +8,6 @@ References:
       https://www.loc.gov/standards/amdvmd/htmldoc/videoMD.html
 
 """
-
-
 import lxml.etree as ET
 from xml_helpers.utils import xsi_ns, XSI_NS
 
