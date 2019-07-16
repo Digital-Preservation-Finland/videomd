@@ -8,6 +8,8 @@ References:
       https://www.loc.gov/standards/amdvmd/htmldoc/videoMD.html
 
 """
+from __future__ import unicode_literals
+
 import lxml.etree as ET
 from xml_helpers.utils import xsi_ns, XSI_NS
 
