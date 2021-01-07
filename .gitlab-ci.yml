@@ -3,9 +3,6 @@
 # changes really need to be made, see the instructions in
 # https://gitlab.csc.fi/dpres/gitlab-ci-pipeline/blob/master/README.rst
 
-variables:
-  ANSIBLE_REPOSITORY: 'ansible-preservation-system'
-
 stages:
   - rpm-package
   - local-test
@@ -83,7 +80,7 @@ e2e-localhost-archives:
 e2e-localhost-siptools-research:
   stage: local-test
   script:
-    - 'e2e-fairdata-localhost.sh dpres-research-rest-api'
+    - 'e2e-fairdata.sh dpres-research-rest-api e2e-localhost'
   except:
     - master
 
