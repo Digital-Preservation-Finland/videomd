@@ -1,6 +1,11 @@
 Release notes
 =============
 
+Version 0.9-0.10
+----------------
+
+- Add RHEL9 compatibility.
+
 Version 0.8
 -----------
 
