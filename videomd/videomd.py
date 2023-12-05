@@ -8,7 +8,6 @@ References:
       https://www.loc.gov/standards/amdvmd/htmldoc/videoMD.html
 
 """
-from __future__ import unicode_literals
 
 import lxml.etree as ET
 from xml_helpers.utils import xsi_ns, XSI_NS
@@ -91,8 +90,8 @@ def videomd_ns(tag, prefix=""):
     """
     if prefix:
         tag = tag[0].upper() + tag[1:]
-        return '{%s}%s%s' % (VIDEOMD_NS, prefix, tag)
-    return '{%s}%s' % (VIDEOMD_NS, tag)
+        return '{{{}}}{}{}'.format(VIDEOMD_NS, prefix, tag)
+    return '{{{}}}{}'.format(VIDEOMD_NS, tag)
 
 
 def _element(tag, prefix=""):

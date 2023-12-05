@@ -1,6 +1,5 @@
 """Unit tests for creation of VideoMD metadata.
 """
-from __future__ import unicode_literals
 
 import pytest
 import lxml.etree as ET
